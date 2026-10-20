@@ -50,6 +50,21 @@ function DishListContent() {
 
   const handleDeleteDish = (id: any) => {
     const targetId = String(id);
+    const targetDish = dishes.find(d => String(d.id || d.BIT240202_Id) === targetId);
+
+    if (targetDish && targetDish.BIT240202_IsAvailable) {
+      const msg = lang === 'en' 
+        ? 'Cannot delete a dish that is currently available for sale! Please turn off availability first.' 
+        : 'Không thể xóa món ăn đang ở trạng thái Đang bán! Vui lòng chuyển trạng thái sang Ngừng bán trước.';
+
+      if (typeof window !== 'undefined' && window.alert) {
+        window.alert(msg);
+      } else {
+        Alert.alert(lang === 'en' ? 'Warning' : 'Cảnh báo', msg);
+      }
+      return;
+    }
+
     const confirmMessage = lang === 'en' 
       ? 'Are you sure you want to delete this dish?' 
       : 'Bạn có chắc chắn muốn xóa món ăn này?';
@@ -63,9 +78,7 @@ function DishListContent() {
       if (netState.isConnected) {
         try {
           await axios.delete(`${MOCK_API_URL}/${targetId}`);
-        } catch (e) {
-          console.log("Lỗi xóa trên MockAPI, nhưng đã xóa ở local.");
-        }
+        } catch (e) {}
       }
     };
 
@@ -167,7 +180,6 @@ function DishListContent() {
         onChangeText={setSearchText}
       />
 
-      {/* DẢI BẤM LỌC LOẠI MÓN - ĐÃ SỬA CSS HIỂN THỊ CHUẨN */}
       <View style={styles.catWrapper}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.catScrollContent}>
           <TouchableOpacity 
@@ -260,8 +272,6 @@ const styles = StyleSheet.create({
   headerTitle: { fontSize: 16, fontWeight: 'bold', color: '#333' },
   langBtn: { backgroundColor: '#007AFF', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 },
   searchInput: { backgroundColor: '#fff', padding: 10, borderRadius: 8, marginBottom: 10, borderWidth: 1, borderColor: '#ddd' },
-  
-  // Style sửa cho Category filter
   catWrapper: { marginBottom: 10, height: 38 },
   catScrollContent: { alignItems: 'center' },
   catChip: { 
@@ -278,7 +288,6 @@ const styles = StyleSheet.create({
   selectedCatChip: { backgroundColor: '#007AFF', borderColor: '#007AFF' },
   catText: { fontSize: 13, color: '#333', fontWeight: '600' },
   selectedCatText: { color: '#fff' },
-
   filterRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
   priceRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
   priceInput: { flex: 1, backgroundColor: '#fff', padding: 8, borderWidth: 1, borderColor: '#ddd', borderRadius: 6 },
